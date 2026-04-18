@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Discord — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=gg+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #313338;
+      --bg-secondary: #2b2d31;
+      --bg-tertiary: #1e1f22;
+      --bg-input: #1e1f22;
+      --blurple: #5865f2;
+      --blurple-hover: #4752c4;
+      --text-normal: #dbdee1;
+      --text-muted: #949ba4;
+      --text-link: #00a8fc;
+      --text-danger: #f23f43;
+      --border-input: #111214;
+      --label: #b5bac1;
+    }
+    body {
+      font-family: 'gg Sans', 'Noto Sans', Whitney, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #1e1f7b 0%, #2f1f82 20%, #23237d 40%, #1a3a9e 60%, #2563d4 80%, #3b82f6 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .bg-blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.35; animation: float 8s ease-in-out infinite; }
+    .blob1 { width: 300px; height: 300px; background: radial-gradient(circle, #7c3aed, #4f46e5); top: 10%; left: 5%; animation-delay: 0s; }
+    .blob2 { width: 200px; height: 200px; background: radial-gradient(circle, #6d28d9, #1e40af); bottom: 15%; left: 8%; animation-delay: -3s; }
+    .blob3 { width: 250px; height: 250px; background: radial-gradient(circle, #3b82f6, #1d4ed8); top: 20%; right: 10%; animation-delay: -5s; }
+    @keyframes float { 0%, 100% { transform: translateY(0px) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
+    .stars { position: absolute; inset: 0; pointer-events: none; }
+    .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 3s ease-in-out infinite; }
+    @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 0.9; transform: scale(1.4); } }
+    .discord-logo { position: fixed; top: 24px; left: 32px; display: flex; align-items: center; gap: 10px; z-index: 10; }
+    .discord-logo svg { width: 36px; height: 36px; }
+    .discord-logo span { color: white; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+    .card {
+      background: var(--bg-primary); border-radius: 8px; padding: 32px 40px;
+      width: 784px; max-width: 95vw; display: flex; gap: 32px; align-items: center;
+      box-shadow: 0 2px 10px 0 rgba(0,0,0,.2), 0 0 40px 0 rgba(0,0,0,.3);
+      position: relative; z-index: 5;
+      animation: cardIn 0.35s cubic-bezier(.22,.68,0,1.2) both;
+    }
+    @keyframes cardIn { from { opacity: 0; transform: scale(0.94) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .form-side { flex: 1; min-width: 0; }
+    .form-header { text-align: center; margin-bottom: 20px; }
+    .form-header h1 { color: white; font-size: 24px; font-weight: 700; line-height: 1.2; margin-bottom: 8px; }
+    .form-header p { color: var(--text-muted); font-size: 16px; line-height: 1.4; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 12px; font-weight: 700; color: var(--label); text-transform: uppercase; letter-spacing: .02em; margin-bottom: 8px; }
+    .field label .required { color: var(--text-danger); margin-left: 3px; }
+    .field input {
+      width: 100%; padding: 10px; background: var(--bg-input);
+      border: 1px solid var(--border-input); border-radius: 3px;
+      color: var(--text-normal); font-size: 16px; font-family: inherit;
+      outline: none; transition: border-color 0.15s;
+    }
+    .field input:focus { border-color: var(--blurple); }
+    .field input.error-input { border-color: var(--text-danger); }
+    .field input::placeholder { color: var(--text-muted); }
+    .forgot { display: inline-block; margin-top: 4px; font-size: 14px; color: var(--text-link); text-decoration: none; cursor: pointer; }
+    .forgot:hover { text-decoration: underline; }
+    .btn-login {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 11px; margin-top: 20px;
+      background: var(--blurple); color: white; font-size: 16px;
+      font-weight: 500; font-family: inherit; border: none; border-radius: 3px;
+      cursor: pointer; transition: background 0.15s; line-height: 1.4;
+    }
+    .btn-login:hover:not(:disabled) { background: var(--blurple-hover); }
+    .btn-login:active:not(:disabled) { transform: translateY(1px); }
+    .btn-login:disabled { opacity: 0.7; cursor: not-allowed; }
+    .spinner {
+      width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white; border-radius: 50%;
+      animation: spin 0.7s linear infinite; display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .register-line { margin-top: 8px; font-size: 14px; color: var(--text-muted); }
+    .register-line a { color: var(--text-link); text-decoration: none; cursor: pointer; }
+    .register-line a:hover { text-decoration: underline; }
+    .alert {
+      padding: 10px 12px; border-radius: 4px; font-size: 14px;
+      margin-bottom: 16px; display: none; line-height: 1.4;
+    }
+    .alert.error   { background: rgba(242,63,67,0.15); border: 1px solid rgba(242,63,67,0.4); color: #f23f43; }
+    .alert.success { background: rgba(59,165,93,0.15); border: 1px solid rgba(59,165,93,0.4); color: #3ba55c; }
+    .alert.show { display: block; }
+    .divider { width: 1px; align-self: stretch; background: rgba(255,255,255,0.08); margin: 0 8px; }
+    .qr-side { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 220px; flex-shrink: 0; }
+    .qr-box { width: 200px; height: 200px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 10px; }
+    .qr-box img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .qr-title { color: white; font-size: 20px; font-weight: 700; text-align: center; line-height: 1.3; }
+    .qr-sub { color: var(--text-muted); font-size: 14px; text-align: center; line-height: 1.5; }
+    .qr-sub strong { color: var(--text-normal); }
+    .passkey-link { color: var(--text-link); font-size: 14px; cursor: pointer; text-decoration: none; }
+    .passkey-link:hover { text-decoration: underline; }
+    /* Modal overlay */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--bg-primary); border-radius: 8px; padding: 32px;
+      max-width: 440px; width: 90%; transform: scale(0.95);
+      transition: transform 0.2s;
+    }
+    .modal-overlay.open .modal { transform: scale(1); }
+    .modal h2 { color: white; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .modal p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+    .btn-ghost { padding: 10px 16px; background: none; color: var(--text-normal); border: none; border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 14px; }
+    .btn-ghost:hover { text-decoration: underline; }
+    /* Profile card after login */
+    .profile-card { display: none; flex-direction: column; align-items: center; gap: 12px; }
+    .profile-card.show { display: flex; }
+    .avatar-ring { width: 80px; height: 80px; border-radius: 50%; background: var(--blurple); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; color: white; }
+    .profile-name { color: white; font-size: 20px; font-weight: 700; }
+    .profile-tag { color: var(--text-muted); font-size: 14px; }
+    .btn-logout { margin-top: 8px; padding: 10px 24px; background: var(--text-danger); color: white; border: none; border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 500; }
+    .btn-logout:hover { filter: brightness(1.1); }
+    @media (max-width: 640px) {
+      .card { flex-direction: column; padding: 24px 20px; }
+      .divider { width: 100%; height: 1px; margin: 8px 0; }
+      .qr-side { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="bg-blob blob1"></div>
+<div class="bg-blob blob2"></div>
+<div class="bg-blob blob3"></div>
+
+<div class="discord-logo">
+  <svg viewBox="0 -28.5 256 256" fill="white" xmlns="http://www.w3.org/2000/svg">
+    <path d="M216.856 16.597A208.502 208.502 0 0 0 164.042 0c-2.275 4.113-4.933 9.645-6.766 14.046-19.692-2.961-39.203-2.961-58.533 0-1.832-4.4-4.55-9.933-6.846-14.046a207.809 207.809 0 0 0-52.855 16.638C5.618 67.147-3.443 116.4 1.087 164.956c22.169 16.555 43.653 26.612 64.775 33.193A161.094 161.094 0 0 0 79.735 175.3a136.413 136.413 0 0 1-21.846-10.632 108.636 108.636 0 0 0 5.356-4.237c42.122 19.702 87.89 19.702 129.51 0a131.66 131.66 0 0 0 5.355 4.237 136.07 136.07 0 0 1-21.886 10.653c4.006 8.02 8.638 15.67 13.873 22.848 21.142-6.58 42.646-16.637 64.815-33.213 5.316-56.288-9.08-105.09-38.056-148.36ZM85.474 135.095c-12.645 0-23.015-11.805-23.015-26.18s10.149-26.2 23.015-26.2c12.867 0 23.236 11.804 23.015 26.2.02 14.375-10.148 26.18-23.015 26.18Zm85.051 0c-12.645 0-23.014-11.805-23.014-26.18s10.148-26.2 23.014-26.2c12.867 0 23.236 11.804 23.015 26.2 0 14.375-10.148 26.18-23.015 26.18Z"/>
+  </svg>
+  <span>Discord</span>
+</div>
+
+<div class="card">
+  <!-- ── Login Form ── -->
+  <div class="form-side" id="loginForm">
+    <div class="form-header">
+      <h1>Welcome back!</h1>
+      <p>We're so excited to see you again!</p>
+    </div>
+
+    <div id="alertBox" class="alert"></div>
+
+    <div class="field">
+      <label>Email or Phone Number<span class="required">*</span></label>
+      <input type="email" id="loginInput" autocomplete="email" placeholder="you@example.com"/>
+    </div>
+    <div class="field">
+      <label>Password<span class="required">*</span></label>
+      <input type="password" id="passwordInput" autocomplete="current-password" placeholder="••••••••"/>
+    </div>
+
+    <a class="forgot" id="forgotLink">Forgot your password?</a>
+
+    <button class="btn-login" id="loginBtn">
+      <div class="spinner" id="spinner"></div>
+      <span id="btnText">Log In</span>
+    </button>
+
+    <p class="register-line">Need an account? <a id="registerLink">Register</a></p>
+  </div>
+
+  <!-- ── Profile (shown after login) ── -->
+  <div class="form-side profile-card" id="profileCard">
+    <div class="avatar-ring" id="avatarRing">?</div>
+    <div class="profile-name" id="profileName">-</div>
+    <div class="profile-tag" id="profileTag">-</div>
+    <p style="color:var(--text-muted);font-size:13px;text-align:center;">You are logged in successfully.</p>
+    <button class="btn-logout" id="logoutBtn">Log Out</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── QR Side ── -->
+  <div class="qr-side">
+    <div class="qr-box">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://discord.com/app" alt="QR Code"/>
+    </div>
+    <h2 class="qr-title">Log in with QR Code</h2>
+    <p class="qr-sub">Scan this with the <strong>Discord mobile app</strong> to log in instantly.</p>
+    <a class="passkey-link">Or, sign in with passkey</a>
+  </div>
+</div>
+
+<!-- ── Forgot Password Modal ── -->
+<div class="modal-overlay" id="forgotModal">
+  <div class="modal">
+    <h2>Reset your password</h2>
+    <p>Enter the email address registered to your account and we'll send you a reset link.</p>
+    <div id="forgotAlert" class="alert"></div>
+    <div class="field">
+      <label>Email Address<span class="required">*</span></label>
+      <input type="email" id="forgotEmail" placeholder="you@example.com"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="closeForgotModal">Cancel</button>
+      <button class="btn-login" id="forgotSubmitBtn" style="margin-top:0;width:auto;padding:10px 20px;">
+        <div class="spinner" id="forgotSpinner"></div>
+        <span id="forgotBtnText">Send Reset Link</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Register Modal ── -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal">
+    <h2>Create an account</h2>
+    <p>Join the conversation. It's free!</p>
+    <div id="regAlert" class="alert"></div>
+    <div class="field"><label>Username<span class="required">*</span></label><input type="text" id="regUsername" placeholder="cooluser"/></div>
+    <div class="field"><label>Email<span class="required">*</span></label><input type="email" id="regEmail" placeholder="you@example.com"/></div>
+    <div class="field"><label>Password<span class="required">*</span></label><input type="password" id="regPassword" placeholder="Min. 8 characters"/></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="closeRegModal">Cancel</button>
+      <button class="btn-login" id="regSubmitBtn" style="margin-top:0;width:auto;padding:10px 20px;">
+        <div class="spinner" id="regSpinner"></div>
+        <span id="regBtnText">Create Account</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Stars ──────────────────────────────────────────────────────────────────
+  const starsContainer = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    const size = Math.random() * 2.5 + 1;
+    star.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*4}s;animation-duration:${2+Math.random()*3}s;`;
+    starsContainer.appendChild(star);
+  }
+
+  // ── API helper ─────────────────────────────────────────────────────────────
+  const API = {
+    async post(path, body) {
+      const res = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body),
+      });
+      return res.json();
+    },
+    async get(path) {
+      const res = await fetch(path, { credentials: 'include' });
+      return res.json();
+    },
+  };
+
+  // ── Alert helper ──────────────────────────────────────────────────────────
+  function showAlert(el, message, type = 'error') {
+    el.textContent = message;
+    el.className = `alert ${type} show`;
+  }
+  function hideAlert(el) { el.className = 'alert'; }
+
+  // ── Loading state ─────────────────────────────────────────────────────────
+  function setLoading(btn, spinner, textEl, loading) {
+    btn.disabled = loading;
+    spinner.style.display = loading ? 'block' : 'none';
+    textEl.style.opacity = loading ? '0.5' : '1';
+  }
+
+  // ── Profile display ───────────────────────────────────────────────────────
+  function showProfile(user) {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('profileCard').classList.add('show');
+    document.getElementById('avatarRing').textContent = user.username[0].toUpperCase();
+    document.getElementById('profileName').textContent = user.username;
+    document.getElementById('profileTag').textContent = `#${user.discriminator}`;
+  }
+  function showLoginForm() {
+    document.getElementById('loginForm').style.display = '';
+    document.getElementById('profileCard').classList.remove('show');
+  }
+
+  // ── Check session on load ─────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', async () => {
+    const res = await API.get('/api/auth/me');
+    if (res.success) showProfile(res.user);
+  });
+
+  // ── Login ─────────────────────────────────────────────────────────────────
+  const loginBtn   = document.getElementById('loginBtn');
+  const spinner    = document.getElementById('spinner');
+  const btnText    = document.getElementById('btnText');
+  const alertBox   = document.getElementById('alertBox');
+  const loginInput = document.getElementById('loginInput');
+  const passInput  = document.getElementById('passwordInput');
+
+  async function doLogin() {
+    hideAlert(alertBox);
+    const login = loginInput.value.trim();
+    const password = passInput.value;
+    if (!login || !password) { showAlert(alertBox, 'Please fill in all fields.'); return; }
+    setLoading(loginBtn, spinner, btnText, true);
+    try {
+      const res = await API.post('/api/auth/login', { login, password });
+      if (res.success) {
+        showProfile(res.user);
+        passInput.value = '';
+      } else {
+        showAlert(alertBox, res.error || 'Login failed. Please try again.');
+        loginInput.classList.add('error-input');
+        passInput.classList.add('error-input');
+      }
+    } catch {
+      showAlert(alertBox, 'Network error. Please check your connection.');
+    } finally {
+      setLoading(loginBtn, spinner, btnText, false);
+    }
+  }
+
+  loginBtn.addEventListener('click', doLogin);
+  [loginInput, passInput].forEach(el => el.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); el.classList.remove('error-input'); }));
+
+  // ── Logout ────────────────────────────────────────────────────────────────
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await API.post('/api/auth/logout', {});
+    showLoginForm();
+  });
+
+  // ── Forgot password modal ─────────────────────────────────────────────────
+  const forgotModal   = document.getElementById('forgotModal');
+  const forgotAlert   = document.getElementById('forgotAlert');
+  const forgotEmail   = document.getElementById('forgotEmail');
+  const forgotBtn     = document.getElementById('forgotSubmitBtn');
+  const forgotSpinner = document.getElementById('forgotSpinner');
+  const forgotBtnTxt  = document.getElementById('forgotBtnText');
+
+  document.getElementById('forgotLink').addEventListener('click', () => { forgotModal.classList.add('open'); forgotEmail.value = ''; hideAlert(forgotAlert); });
+  document.getElementById('closeForgotModal').addEventListener('click', () => forgotModal.classList.remove('open'));
+  forgotModal.addEventListener('click', e => { if (e.target === forgotModal) forgotModal.classList.remove('open'); });
+
+  forgotBtn.addEventListener('click', async () => {
+    hideAlert(forgotAlert);
+    const email = forgotEmail.value.trim();
+    if (!email) { showAlert(forgotAlert, 'Please enter your email address.'); return; }
+    setLoading(forgotBtn, forgotSpinner, forgotBtnTxt, true);
+    try {
+      const res = await API.post('/api/auth/forgot-password', { email });
+      if (res.success) showAlert(forgotAlert, res.message, 'success');
+      else showAlert(forgotAlert, res.error || 'Something went wrong.');
+    } catch {
+      showAlert(forgotAlert, 'Network error.');
+    } finally {
+      setLoading(forgotBtn, forgotSpinner, forgotBtnTxt, false);
+    }
+  });
+
+  // ── Register modal ────────────────────────────────────────────────────────
+  const registerModal = document.getElementById('registerModal');
+  const regAlert      = document.getElementById('regAlert');
+  const regBtn        = document.getElementById('regSubmitBtn');
+  const regSpinner    = document.getElementById('regSpinner');
+  const regBtnTxt     = document.getElementById('regBtnText');
+
+  document.getElementById('registerLink').addEventListener('click', () => { registerModal.classList.add('open'); hideAlert(regAlert); });
+  document.getElementById('closeRegModal').addEventListener('click', () => registerModal.classList.remove('open'));
+  registerModal.addEventListener('click', e => { if (e.target === registerModal) registerModal.classList.remove('open'); });
+
+  regBtn.addEventListener('click', async () => {
+    hideAlert(regAlert);
+    const username = document.getElementById('regUsername').value.trim();
+    const email    = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    if (!username || !email || !password) { showAlert(regAlert, 'Please fill in all fields.'); return; }
+    setLoading(regBtn, regSpinner, regBtnTxt, true);
+    try {
+      const res = await API.post('/api/auth/register', { username, email, password });
+      if (res.success) {
+        registerModal.classList.remove('open');
+        showProfile(res.user);
+      } else {
+        showAlert(regAlert, res.error || 'Registration failed.');
+      }
+    } catch {
+      showAlert(regAlert, 'Network error.');
+    } finally {
+      setLoading(regBtn, regSpinner, regBtnTxt, false);
+    }
+  });
+</script>
+</body>
+</html>
+
+
+
+
