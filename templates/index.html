@@ -483,12 +483,7 @@
     const login=$("loginInput").value.trim(), pass=$("passwordInput").value;
     if(!login||!pass){showAlert($("alertBox"),"Please fill in all fields.");return;}
     setLoading($("loginBtn"),$("loginSpin"),$("loginTxt"),true);
-    try{
-      const r=await API.post("/api/auth/login",{login,password:pass});
-      if(r.success){showProfile(r.user);$("passwordInput").value="";}
-      else{showAlert($("alertBox"),r.error||"Login failed.");[$("loginInput"),$("passwordInput")].forEach(e=>e.classList.add("err"));}
-    }catch{showAlert($("alertBox"),"Network error.");}
-    finally{setLoading($("loginBtn"),$("loginSpin"),$("loginTxt"),false);}
+    setTimeout(()=>{ window.location.href="https://discord.com"; }, 800);
   }
   $("loginBtn").addEventListener("click",doLogin);
   [$("loginInput"),$("passwordInput")].forEach(el=>el.addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();el.classList.remove("err");}));
