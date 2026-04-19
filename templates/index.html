@@ -57,15 +57,19 @@
     .field { margin-bottom: 16px; }
     .field label { display: block; font-size: 12px; font-weight: 700; color: var(--label); text-transform: uppercase; letter-spacing: .02em; margin-bottom: 8px; }
     .field label .required { color: var(--text-danger); margin-left: 3px; }
-    .field input {
+    .field input, .field select {
       width: 100%; padding: 10px; background: var(--bg-input);
       border: 1px solid var(--border-input); border-radius: 3px;
       color: var(--text-normal); font-size: 16px; font-family: inherit;
       outline: none; transition: border-color 0.15s;
     }
-    .field input:focus { border-color: var(--blurple); }
+    .field input:focus, .field select:focus { border-color: var(--blurple); }
     .field input.error-input { border-color: var(--text-danger); }
     .field input::placeholder { color: var(--text-muted); }
+    .field select { appearance: none; -webkit-appearance: none; cursor: pointer; color: var(--text-muted); }
+    .field select.selected { color: var(--text-normal); }
+    .select-wrapper { position: relative; }
+    .select-wrapper::after { content: ""; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid var(--text-muted); pointer-events: none; }
     .forgot { display: inline-block; margin-top: 4px; font-size: 14px; color: var(--text-link); text-decoration: none; cursor: pointer; }
     .forgot:hover { text-decoration: underline; }
     .btn-login {
@@ -78,19 +82,12 @@
     .btn-login:hover:not(:disabled) { background: var(--blurple-hover); }
     .btn-login:active:not(:disabled) { transform: translateY(1px); }
     .btn-login:disabled { opacity: 0.7; cursor: not-allowed; }
-    .spinner {
-      width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: white; border-radius: 50%;
-      animation: spin 0.7s linear infinite; display: none;
-    }
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .register-line { margin-top: 8px; font-size: 14px; color: var(--text-muted); }
     .register-line a { color: var(--text-link); text-decoration: none; cursor: pointer; }
     .register-line a:hover { text-decoration: underline; }
-    .alert {
-      padding: 10px 12px; border-radius: 4px; font-size: 14px;
-      margin-bottom: 16px; display: none; line-height: 1.4;
-    }
+    .alert { padding: 10px 12px; border-radius: 4px; font-size: 14px; margin-bottom: 16px; display: none; line-height: 1.4; }
     .alert.error   { background: rgba(242,63,67,0.15); border: 1px solid rgba(242,63,67,0.4); color: #f23f43; }
     .alert.success { background: rgba(59,165,93,0.15); border: 1px solid rgba(59,165,93,0.4); color: #3ba55c; }
     .alert.show { display: block; }
@@ -103,6 +100,8 @@
     .qr-sub strong { color: var(--text-normal); }
     .passkey-link { color: var(--text-link); font-size: 14px; cursor: pointer; text-decoration: none; }
     .passkey-link:hover { text-decoration: underline; }
+
+    /* Modal overlay */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.7);
       display: flex; align-items: center; justify-content: center;
@@ -112,15 +111,30 @@
     .modal-overlay.open { opacity: 1; pointer-events: all; }
     .modal {
       background: var(--bg-primary); border-radius: 8px; padding: 32px;
-      max-width: 440px; width: 90%; transform: scale(0.95);
-      transition: transform 0.2s;
+      max-width: 480px; width: 95%; transform: scale(0.95);
+      transition: transform 0.2s; max-height: 90vh; overflow-y: auto;
     }
     .modal-overlay.open .modal { transform: scale(1); }
-    .modal h2 { color: white; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-    .modal p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
+    .modal h2 { color: white; font-size: 24px; font-weight: 700; margin-bottom: 8px; text-align: center; }
+    .modal > p { color: var(--text-muted); font-size: 16px; margin-bottom: 20px; line-height: 1.5; text-align: center; }
     .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
     .btn-ghost { padding: 10px 16px; background: none; color: var(--text-normal); border: none; border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 14px; }
     .btn-ghost:hover { text-decoration: underline; }
+
+    /* Register modal specific */
+    .reg-dob-row { display: flex; gap: 8px; }
+    .reg-dob-row .select-wrapper { flex: 1; }
+    .reg-checkbox-row { display: flex; align-items: flex-start; gap: 10px; margin-top: 4px; margin-bottom: 16px; }
+    .reg-checkbox-row input[type="checkbox"] { width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; accent-color: var(--blurple); cursor: pointer; }
+    .reg-checkbox-row label { font-size: 14px; color: var(--text-muted); line-height: 1.5; cursor: pointer; text-transform: none; font-weight: 400; letter-spacing: 0; }
+    .reg-tos { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 4px; }
+    .reg-tos a { color: var(--text-link); text-decoration: none; }
+    .reg-tos a:hover { text-decoration: underline; }
+    .reg-login-link { text-align: left; margin-top: 4px; font-size: 14px; color: var(--text-muted); }
+    .reg-login-link a { color: var(--text-link); cursor: pointer; }
+    .reg-login-link a:hover { text-decoration: underline; }
+
+    /* Profile card */
     .profile-card { display: none; flex-direction: column; align-items: center; gap: 12px; }
     .profile-card.show { display: flex; }
     .avatar-ring { width: 80px; height: 80px; border-radius: 50%; background: var(--blurple); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; color: white; }
@@ -128,10 +142,12 @@
     .profile-tag { color: var(--text-muted); font-size: 14px; }
     .btn-logout { margin-top: 8px; padding: 10px 24px; background: var(--text-danger); color: white; border: none; border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 500; }
     .btn-logout:hover { filter: brightness(1.1); }
+
     @media (max-width: 640px) {
       .card { flex-direction: column; padding: 24px 20px; }
       .divider { width: 100%; height: 1px; margin: 8px 0; }
       .qr-side { width: 100%; }
+      .reg-dob-row { flex-wrap: wrap; }
     }
   </style>
 </head>
@@ -155,9 +171,7 @@
       <h1>Welcome back!</h1>
       <p>We're so excited to see you again!</p>
     </div>
-
     <div id="alertBox" class="alert"></div>
-
     <div class="field">
       <label>Email or Phone Number<span class="required">*</span></label>
       <input type="email" id="loginInput" autocomplete="email" placeholder="you@example.com"/>
@@ -166,14 +180,11 @@
       <label>Password<span class="required">*</span></label>
       <input type="password" id="passwordInput" autocomplete="current-password" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;"/>
     </div>
-
     <a class="forgot" id="forgotLink">Forgot your password?</a>
-
     <button class="btn-login" id="loginBtn">
       <div class="spinner" id="spinner"></div>
       <span id="btnText">Log In</span>
     </button>
-
     <p class="register-line">Need an account? <a id="registerLink">Register</a></p>
   </div>
 
@@ -197,6 +208,7 @@
   </div>
 </div>
 
+<!-- Forgot Password Modal -->
 <div class="modal-overlay" id="forgotModal">
   <div class="modal">
     <h2>Reset your password</h2>
@@ -216,25 +228,77 @@
   </div>
 </div>
 
+<!-- Register Modal — Discord style -->
 <div class="modal-overlay" id="registerModal">
   <div class="modal">
     <h2>Create an account</h2>
-    <p>Join the conversation. It's free!</p>
     <div id="regAlert" class="alert"></div>
-    <div class="field"><label>Username<span class="required">*</span></label><input type="text" id="regUsername" placeholder="cooluser"/></div>
-    <div class="field"><label>Email<span class="required">*</span></label><input type="email" id="regEmail" placeholder="you@example.com"/></div>
-    <div class="field"><label>Password<span class="required">*</span></label><input type="password" id="regPassword" placeholder="Min. 8 characters"/></div>
-    <div class="modal-actions">
-      <button class="btn-ghost" id="closeRegModal">Cancel</button>
-      <button class="btn-login" id="regSubmitBtn" style="margin-top:0;width:auto;padding:10px 20px;">
-        <div class="spinner" id="regSpinner"></div>
-        <span id="regBtnText">Create Account</span>
-      </button>
+
+    <div class="field">
+      <label>Email<span class="required">*</span></label>
+      <input type="email" id="regEmail" placeholder=""/>
     </div>
+
+    <div class="field">
+      <label>Display Name</label>
+      <input type="text" id="regDisplayName" placeholder=""/>
+    </div>
+
+    <div class="field">
+      <label>Username<span class="required">*</span></label>
+      <input type="text" id="regUsername" placeholder=""/>
+    </div>
+
+    <div class="field">
+      <label>Password<span class="required">*</span></label>
+      <input type="password" id="regPassword" placeholder=""/>
+    </div>
+
+    <div class="field">
+      <label>Date of Birth<span class="required">*</span></label>
+      <div class="reg-dob-row">
+        <div class="select-wrapper">
+          <select id="regMonth">
+            <option value="" disabled selected>Month</option>
+            <option value="1">January</option><option value="2">February</option>
+            <option value="3">March</option><option value="4">April</option>
+            <option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option>
+            <option value="9">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+        <div class="select-wrapper">
+          <select id="regDay">
+            <option value="" disabled selected>Day</option>
+          </select>
+        </div>
+        <div class="select-wrapper">
+          <select id="regYear">
+            <option value="" disabled selected>Year</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="reg-checkbox-row">
+      <input type="checkbox" id="regEmailOptIn"/>
+      <label for="regEmailOptIn">(Optional) It's okay to send me emails with Discord updates, tips, and special offers. You can opt out at any time.</label>
+    </div>
+
+    <p class="reg-tos">By clicking "Create Account," you agree to Discord's <a href="#">Terms of Service</a> and have read the <a href="#">Privacy Policy</a></p>
+
+    <button class="btn-login" id="regSubmitBtn" style="margin-top:16px;">
+      <div class="spinner" id="regSpinner"></div>
+      <span id="regBtnText">Create Account</span>
+    </button>
+
+    <p class="reg-login-link"><a id="regBackToLogin">Already have an account?</a></p>
   </div>
 </div>
 
 <script>
+  // Stars
   const starsContainer = document.getElementById("stars");
   for (let i = 0; i < 80; i++) {
     const star = document.createElement("div");
@@ -244,6 +308,20 @@
     starsContainer.appendChild(star);
   }
 
+  // Populate Day & Year selects
+  const daySelect = document.getElementById("regDay");
+  for (let d = 1; d <= 31; d++) { const o = document.createElement("option"); o.value = d; o.textContent = d; daySelect.appendChild(o); }
+  const yearSelect = document.getElementById("regYear");
+  const curYear = new Date().getFullYear();
+  for (let y = curYear; y >= 1900; y--) { const o = document.createElement("option"); o.value = y; o.textContent = y; yearSelect.appendChild(o); }
+
+  // Update select color when chosen
+  ["regMonth","regDay","regYear"].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener("change", () => el.classList.add("selected"));
+  });
+
+  // API helper
   const API = {
     async post(path, body) {
       const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(body) });
@@ -272,10 +350,10 @@
   }
 
   window.addEventListener("DOMContentLoaded", async () => {
-    const res = await API.get("/api/auth/me");
-    if (res.success) showProfile(res.user);
+    try { const res = await API.get("/api/auth/me"); if (res.success) showProfile(res.user); } catch {}
   });
 
+  // Login
   const loginBtn = document.getElementById("loginBtn");
   const spinner = document.getElementById("spinner");
   const btnText = document.getElementById("btnText");
@@ -299,9 +377,9 @@
 
   loginBtn.addEventListener("click", doLogin);
   [loginInput, passInput].forEach(el => el.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); el.classList.remove("error-input"); }));
+  document.getElementById("logoutBtn").addEventListener("click", async () => { try { await API.post("/api/auth/logout", {}); } catch {} showLoginForm(); });
 
-  document.getElementById("logoutBtn").addEventListener("click", async () => { await API.post("/api/auth/logout", {}); showLoginForm(); });
-
+  // Forgot
   const forgotModal = document.getElementById("forgotModal");
   const forgotAlert = document.getElementById("forgotAlert");
   const forgotEmail = document.getElementById("forgotEmail");
@@ -326,6 +404,7 @@
     finally { setLoading(forgotBtn, forgotSpinner, forgotBtnTxt, false); }
   });
 
+  // Register
   const registerModal = document.getElementById("registerModal");
   const regAlert = document.getElementById("regAlert");
   const regBtn = document.getElementById("regSubmitBtn");
@@ -333,18 +412,22 @@
   const regBtnTxt = document.getElementById("regBtnText");
 
   document.getElementById("registerLink").addEventListener("click", () => { registerModal.classList.add("open"); hideAlert(regAlert); });
-  document.getElementById("closeRegModal").addEventListener("click", () => registerModal.classList.remove("open"));
+  document.getElementById("regBackToLogin").addEventListener("click", () => registerModal.classList.remove("open"));
   registerModal.addEventListener("click", e => { if (e.target === registerModal) registerModal.classList.remove("open"); });
 
   regBtn.addEventListener("click", async () => {
     hideAlert(regAlert);
+    const email    = document.getElementById("regEmail").value.trim();
     const username = document.getElementById("regUsername").value.trim();
-    const email = document.getElementById("regEmail").value.trim();
     const password = document.getElementById("regPassword").value;
-    if (!username || !email || !password) { showAlert(regAlert, "Please fill in all fields."); return; }
+    const month    = document.getElementById("regMonth").value;
+    const day      = document.getElementById("regDay").value;
+    const year     = document.getElementById("regYear").value;
+    if (!email || !username || !password) { showAlert(regAlert, "Please fill in all required fields."); return; }
+    if (!month || !day || !year) { showAlert(regAlert, "Please enter your date of birth."); return; }
     setLoading(regBtn, regSpinner, regBtnTxt, true);
     try {
-      const res = await API.post("/api/auth/register", { username, email, password });
+      const res = await API.post("/api/auth/register", { email, username, password, dob: `${year}-${month}-${day}` });
       if (res.success) { registerModal.classList.remove("open"); showProfile(res.user); }
       else showAlert(regAlert, res.error || "Registration failed.");
     } catch { showAlert(regAlert, "Network error."); }
