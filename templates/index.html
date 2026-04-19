@@ -4,9 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Discord — Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=gg+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap");
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
       --bg-primary: #313338;
       --bg-secondary: #2b2d31;
@@ -18,11 +19,13 @@
       --text-muted: #949ba4;
       --text-link: #00a8fc;
       --text-danger: #f23f43;
-      --border-input: #111214;
+      --border-input: #1e1f22;
       --label: #b5bac1;
+      --modal-bg: #313338;
     }
+
     body {
-      font-family: "gg Sans", "Noto Sans", Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-family: "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
       background: linear-gradient(135deg, #1e1f7b 0%, #2f1f82 20%, #23237d 40%, #1a3a9e 60%, #2563d4 80%, #3b82f6 100%);
       min-height: 100vh;
       display: flex;
@@ -31,123 +34,246 @@
       overflow: hidden;
       position: relative;
     }
+
     .bg-blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.35; animation: float 8s ease-in-out infinite; }
-    .blob1 { width: 300px; height: 300px; background: radial-gradient(circle, #7c3aed, #4f46e5); top: 10%; left: 5%; animation-delay: 0s; }
+    .blob1 { width: 300px; height: 300px; background: radial-gradient(circle, #7c3aed, #4f46e5); top: 10%; left: 5%; }
     .blob2 { width: 200px; height: 200px; background: radial-gradient(circle, #6d28d9, #1e40af); bottom: 15%; left: 8%; animation-delay: -3s; }
     .blob3 { width: 250px; height: 250px; background: radial-gradient(circle, #3b82f6, #1d4ed8); top: 20%; right: 10%; animation-delay: -5s; }
-    @keyframes float { 0%, 100% { transform: translateY(0px) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+
     .stars { position: absolute; inset: 0; pointer-events: none; }
     .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 3s ease-in-out infinite; }
-    @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 0.9; transform: scale(1.4); } }
+    @keyframes twinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.9; } }
+
     .discord-logo { position: fixed; top: 24px; left: 32px; display: flex; align-items: center; gap: 10px; z-index: 10; }
     .discord-logo svg { width: 36px; height: 36px; }
-    .discord-logo span { color: white; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+    .discord-logo span { color: white; font-size: 20px; font-weight: 700; }
+
+    /* ── Main login card ── */
     .card {
-      background: var(--bg-primary); border-radius: 8px; padding: 32px 40px;
-      width: 784px; max-width: 95vw; display: flex; gap: 32px; align-items: center;
-      box-shadow: 0 2px 10px 0 rgba(0,0,0,.2), 0 0 40px 0 rgba(0,0,0,.3);
-      position: relative; z-index: 5;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 32px 40px;
+      width: 784px;
+      max-width: 95vw;
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,.2), 0 0 40px rgba(0,0,0,.3);
+      position: relative;
+      z-index: 5;
       animation: cardIn 0.35s cubic-bezier(.22,.68,0,1.2) both;
     }
-    @keyframes cardIn { from { opacity: 0; transform: scale(0.94) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    @keyframes cardIn { from { opacity: 0; transform: scale(0.94) translateY(16px); } to { opacity: 1; transform: none; } }
+
     .form-side { flex: 1; min-width: 0; }
     .form-header { text-align: center; margin-bottom: 20px; }
-    .form-header h1 { color: white; font-size: 24px; font-weight: 700; line-height: 1.2; margin-bottom: 8px; }
-    .form-header p { color: var(--text-muted); font-size: 16px; line-height: 1.4; }
-    .field { margin-bottom: 16px; }
-    .field label { display: block; font-size: 12px; font-weight: 700; color: var(--label); text-transform: uppercase; letter-spacing: .02em; margin-bottom: 8px; }
-    .field label .required { color: var(--text-danger); margin-left: 3px; }
-    .field input, .field select {
-      width: 100%; padding: 10px; background: var(--bg-input);
-      border: 1px solid var(--border-input); border-radius: 3px;
-      color: var(--text-normal); font-size: 16px; font-family: inherit;
-      outline: none; transition: border-color 0.15s;
+    .form-header h1 { color: white; font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+    .form-header p { color: var(--text-muted); font-size: 16px; }
+
+    .field { margin-bottom: 20px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--label);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 8px;
     }
-    .field input:focus, .field select:focus { border-color: var(--blurple); }
-    .field input.error-input { border-color: var(--text-danger); }
-    .field input::placeholder { color: var(--text-muted); }
-    .field select { appearance: none; -webkit-appearance: none; cursor: pointer; color: var(--text-muted); }
-    .field select.selected { color: var(--text-normal); }
-    .select-wrapper { position: relative; }
-    .select-wrapper::after { content: ""; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid var(--text-muted); pointer-events: none; }
-    .forgot { display: inline-block; margin-top: 4px; font-size: 14px; color: var(--text-link); text-decoration: none; cursor: pointer; }
+    .field label .req { color: var(--text-danger); margin-left: 2px; }
+    .field input {
+      width: 100%;
+      padding: 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      border-radius: 3px;
+      color: var(--text-normal);
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .field input:focus { border-color: var(--blurple); }
+    .field input.err { border-color: var(--text-danger); }
+
+    .forgot { font-size: 14px; color: var(--text-link); cursor: pointer; text-decoration: none; }
     .forgot:hover { text-decoration: underline; }
-    .btn-login {
+
+    .btn {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%; padding: 11px; margin-top: 20px;
       background: var(--blurple); color: white; font-size: 16px;
       font-weight: 500; font-family: inherit; border: none; border-radius: 3px;
-      cursor: pointer; transition: background 0.15s; line-height: 1.4;
+      cursor: pointer; transition: background 0.15s;
     }
-    .btn-login:hover:not(:disabled) { background: var(--blurple-hover); }
-    .btn-login:active:not(:disabled) { transform: translateY(1px); }
-    .btn-login:disabled { opacity: 0.7; cursor: not-allowed; }
-    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .register-line { margin-top: 8px; font-size: 14px; color: var(--text-muted); }
-    .register-line a { color: var(--text-link); text-decoration: none; cursor: pointer; }
-    .register-line a:hover { text-decoration: underline; }
-    .alert { padding: 10px 12px; border-radius: 4px; font-size: 14px; margin-bottom: 16px; display: none; line-height: 1.4; }
-    .alert.error   { background: rgba(242,63,67,0.15); border: 1px solid rgba(242,63,67,0.4); color: #f23f43; }
-    .alert.success { background: rgba(59,165,93,0.15); border: 1px solid rgba(59,165,93,0.4); color: #3ba55c; }
-    .alert.show { display: block; }
-    .divider { width: 1px; align-self: stretch; background: rgba(255,255,255,0.08); margin: 0 8px; }
-    .qr-side { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 220px; flex-shrink: 0; }
-    .qr-box { width: 200px; height: 200px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 10px; }
-    .qr-box img { width: 100%; height: 100%; object-fit: contain; display: block; }
-    .qr-title { color: white; font-size: 20px; font-weight: 700; text-align: center; line-height: 1.3; }
-    .qr-sub { color: var(--text-muted); font-size: 14px; text-align: center; line-height: 1.5; }
-    .qr-sub strong { color: var(--text-normal); }
-    .passkey-link { color: var(--text-link); font-size: 14px; cursor: pointer; text-decoration: none; }
-    .passkey-link:hover { text-decoration: underline; }
+    .btn:hover:not(:disabled) { background: var(--blurple-hover); }
+    .btn:active:not(:disabled) { transform: translateY(1px); }
+    .btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
-    /* Modal overlay */
+    .spin { width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .register-line { margin-top: 8px; font-size: 14px; color: var(--text-muted); }
+    .register-line a { color: var(--text-link); cursor: pointer; }
+    .register-line a:hover { text-decoration: underline; }
+
+    .alert { padding: 10px 12px; border-radius: 4px; font-size: 14px; margin-bottom: 16px; display: none; line-height: 1.4; }
+    .alert.error { background: rgba(242,63,67,.15); border: 1px solid rgba(242,63,67,.4); color: #f23f43; display: block; }
+    .alert.success { background: rgba(59,165,93,.15); border: 1px solid rgba(59,165,93,.4); color: #3ba55c; display: block; }
+
+    .divider { width:1px; align-self:stretch; background:rgba(255,255,255,.08); margin: 0 8px; }
+
+    .qr-side { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; width:220px; flex-shrink:0; }
+    .qr-box { width:200px;height:200px;background:white;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:10px; }
+    .qr-box img { width:100%;height:100%;object-fit:contain; }
+    .qr-title { color:white;font-size:20px;font-weight:700;text-align:center;line-height:1.3; }
+    .qr-sub { color:var(--text-muted);font-size:14px;text-align:center;line-height:1.5; }
+    .qr-sub strong { color:var(--text-normal); }
+    .passkey-link { color:var(--text-link);font-size:14px;cursor:pointer; }
+    .passkey-link:hover { text-decoration:underline; }
+
+    /* Profile */
+    .profile-card { display:none; flex-direction:column; align-items:center; gap:12px; }
+    .profile-card.show { display:flex; }
+    .avatar-ring { width:80px;height:80px;border-radius:50%;background:var(--blurple);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:white; }
+    .profile-name { color:white;font-size:20px;font-weight:700; }
+    .profile-tag { color:var(--text-muted);font-size:14px; }
+    .btn-logout { margin-top:8px;padding:10px 24px;background:var(--text-danger);color:white;border:none;border-radius:3px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:500; }
+    .btn-logout:hover { filter:brightness(1.1); }
+
+    /* ── MODAL OVERLAY ── */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
       display: flex; align-items: center; justify-content: center;
-      z-index: 100; opacity: 0; pointer-events: none;
+      z-index: 200;
+      opacity: 0; pointer-events: none;
       transition: opacity 0.2s;
     }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
-    .modal {
-      background: var(--bg-primary); border-radius: 8px; padding: 32px;
-      max-width: 480px; width: 95%; transform: scale(0.95);
-      transition: transform 0.2s; max-height: 90vh; overflow-y: auto;
+
+    /* ── REGISTER MODAL — exact Discord layout ── */
+    .reg-modal {
+      background: var(--modal-bg);
+      border-radius: 5px;
+      padding: 32px 24px 24px;
+      width: 480px;
+      max-width: 96vw;
+      transform: scale(0.95);
+      transition: transform 0.2s;
     }
-    .modal-overlay.open .modal { transform: scale(1); }
-    .modal h2 { color: white; font-size: 24px; font-weight: 700; margin-bottom: 8px; text-align: center; }
-    .modal > p { color: var(--text-muted); font-size: 16px; margin-bottom: 20px; line-height: 1.5; text-align: center; }
-    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
-    .btn-ghost { padding: 10px 16px; background: none; color: var(--text-normal); border: none; border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 14px; }
-    .btn-ghost:hover { text-decoration: underline; }
+    .modal-overlay.open .reg-modal { transform: scale(1); }
 
-    /* Register modal specific */
-    .reg-dob-row { display: flex; gap: 8px; }
-    .reg-dob-row .select-wrapper { flex: 1; }
-    .reg-checkbox-row { display: flex; align-items: flex-start; gap: 10px; margin-top: 4px; margin-bottom: 16px; }
-    .reg-checkbox-row input[type="checkbox"] { width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; accent-color: var(--blurple); cursor: pointer; }
-    .reg-checkbox-row label { font-size: 14px; color: var(--text-muted); line-height: 1.5; cursor: pointer; text-transform: none; font-weight: 400; letter-spacing: 0; }
-    .reg-tos { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 4px; }
-    .reg-tos a { color: var(--text-link); text-decoration: none; }
-    .reg-tos a:hover { text-decoration: underline; }
-    .reg-login-link { text-align: left; margin-top: 4px; font-size: 14px; color: var(--text-muted); }
-    .reg-login-link a { color: var(--text-link); cursor: pointer; }
-    .reg-login-link a:hover { text-decoration: underline; }
+    .reg-modal h2 {
+      color: white;
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .reg-modal .subtitle {
+      color: var(--text-muted);
+      font-size: 16px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
 
-    /* Profile card */
-    .profile-card { display: none; flex-direction: column; align-items: center; gap: 12px; }
-    .profile-card.show { display: flex; }
-    .avatar-ring { width: 80px; height: 80px; border-radius: 50%; background: var(--blurple); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; color: white; }
-    .profile-name { color: white; font-size: 20px; font-weight: 700; }
-    .profile-tag { color: var(--text-muted); font-size: 14px; }
-    .btn-logout { margin-top: 8px; padding: 10px 24px; background: var(--text-danger); color: white; border: none; border-radius: 3px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 500; }
-    .btn-logout:hover { filter: brightness(1.1); }
+    /* Two-column row for fields */
+    .reg-row { display: flex; gap: 16px; }
+    .reg-row .field { flex: 1; }
+
+    /* DOB row — three equal selects */
+    .dob-row { display: flex; gap: 8px; }
+    .dob-row .sel-wrap { flex: 1; position: relative; }
+    .dob-row .sel-wrap::after {
+      content: "";
+      position: absolute;
+      right: 10px; top: 50%;
+      transform: translateY(-50%);
+      width: 0; height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--text-muted);
+      pointer-events: none;
+    }
+    .dob-row select {
+      width: 100%;
+      padding: 10px 28px 10px 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      border-radius: 3px;
+      color: var(--text-muted);
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .dob-row select.picked { color: var(--text-normal); }
+    .dob-row select:focus { border-color: var(--blurple); }
+
+    /* Checkbox row */
+    .check-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin: 16px 0 12px;
+    }
+    .check-row input[type="checkbox"] {
+      width: 18px; height: 18px;
+      flex-shrink: 0; margin-top: 2px;
+      accent-color: var(--blurple);
+      cursor: pointer;
+    }
+    .check-row span {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ToS line */
+    .tos-line {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .tos-line a { color: var(--text-link); text-decoration: none; }
+    .tos-line a:hover { text-decoration: underline; }
+
+    /* Back to login */
+    .back-login {
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .back-login a { color: var(--text-link); cursor: pointer; }
+    .back-login a:hover { text-decoration: underline; }
+
+    /* Forgot modal */
+    .forgot-modal {
+      background: var(--modal-bg);
+      border-radius: 5px;
+      padding: 32px 24px 24px;
+      width: 440px;
+      max-width: 96vw;
+      transform: scale(0.95);
+      transition: transform 0.2s;
+    }
+    .modal-overlay.open .forgot-modal { transform: scale(1); }
+    .forgot-modal h2 { color:white;font-size:20px;font-weight:700;margin-bottom:8px; }
+    .forgot-modal p { color:var(--text-muted);font-size:14px;margin-bottom:20px;line-height:1.5; }
+    .modal-actions { display:flex;gap:8px;justify-content:flex-end;margin-top:20px; }
+    .btn-ghost { padding:10px 16px;background:none;color:var(--text-normal);border:none;border-radius:3px;cursor:pointer;font-family:inherit;font-size:14px; }
+    .btn-ghost:hover { text-decoration:underline; }
+    .btn-sm { display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;margin-top:0;width:auto;background:var(--blurple);color:white;font-size:14px;font-weight:500;font-family:inherit;border:none;border-radius:3px;cursor:pointer;transition:background .15s; }
+    .btn-sm:hover { background:var(--blurple-hover); }
 
     @media (max-width: 640px) {
-      .card { flex-direction: column; padding: 24px 20px; }
-      .divider { width: 100%; height: 1px; margin: 8px 0; }
-      .qr-side { width: 100%; }
-      .reg-dob-row { flex-wrap: wrap; }
+      .card { flex-direction:column; padding:24px 20px; }
+      .divider { width:100%;height:1px;margin:8px 0; }
+      .qr-side { width:100%; }
+      .reg-row { flex-direction:column; gap:0; }
     }
   </style>
 </head>
@@ -165,6 +291,7 @@
   <span>Discord</span>
 </div>
 
+<!-- ── Login card ── -->
 <div class="card">
   <div class="form-side" id="loginForm">
     <div class="form-header">
@@ -173,17 +300,17 @@
     </div>
     <div id="alertBox" class="alert"></div>
     <div class="field">
-      <label>Email or Phone Number<span class="required">*</span></label>
-      <input type="email" id="loginInput" autocomplete="email" placeholder="you@example.com"/>
+      <label>Email or Phone Number<span class="req">*</span></label>
+      <input type="email" id="loginInput" autocomplete="email"/>
     </div>
     <div class="field">
-      <label>Password<span class="required">*</span></label>
-      <input type="password" id="passwordInput" autocomplete="current-password" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;"/>
+      <label>Password<span class="req">*</span></label>
+      <input type="password" id="passwordInput" autocomplete="current-password"/>
     </div>
     <a class="forgot" id="forgotLink">Forgot your password?</a>
-    <button class="btn-login" id="loginBtn">
-      <div class="spinner" id="spinner"></div>
-      <span id="btnText">Log In</span>
+    <button class="btn" id="loginBtn">
+      <div class="spin" id="loginSpin"></div>
+      <span id="loginTxt">Log In</span>
     </button>
     <p class="register-line">Need an account? <a id="registerLink">Register</a></p>
   </div>
@@ -192,7 +319,7 @@
     <div class="avatar-ring" id="avatarRing">?</div>
     <div class="profile-name" id="profileName">-</div>
     <div class="profile-tag" id="profileTag">-</div>
-    <p style="color:var(--text-muted);font-size:13px;text-align:center;">You are logged in successfully.</p>
+    <p style="color:var(--text-muted);font-size:13px;text-align:center;margin-top:4px;">You are logged in successfully.</p>
     <button class="btn-logout" id="logoutBtn">Log Out</button>
   </div>
 
@@ -208,230 +335,201 @@
   </div>
 </div>
 
-<!-- Forgot Password Modal -->
+<!-- ── Forgot Password modal ── -->
 <div class="modal-overlay" id="forgotModal">
-  <div class="modal">
+  <div class="forgot-modal">
     <h2>Reset your password</h2>
     <p>Enter the email address registered to your account and we'll send you a reset link.</p>
     <div id="forgotAlert" class="alert"></div>
     <div class="field">
-      <label>Email Address<span class="required">*</span></label>
+      <label>Email Address<span class="req">*</span></label>
       <input type="email" id="forgotEmail" placeholder="you@example.com"/>
     </div>
     <div class="modal-actions">
-      <button class="btn-ghost" id="closeForgotModal">Cancel</button>
-      <button class="btn-login" id="forgotSubmitBtn" style="margin-top:0;width:auto;padding:10px 20px;">
-        <div class="spinner" id="forgotSpinner"></div>
-        <span id="forgotBtnText">Send Reset Link</span>
+      <button class="btn-ghost" id="closeForgot">Cancel</button>
+      <button class="btn-sm" id="forgotSubmitBtn">
+        <div class="spin" id="forgotSpin"></div>
+        <span id="forgotTxt">Send Reset Link</span>
       </button>
     </div>
   </div>
 </div>
 
-<!-- Register Modal — Discord style -->
+<!-- ── Register modal — Discord exact design ── -->
 <div class="modal-overlay" id="registerModal">
-  <div class="modal">
+  <div class="reg-modal">
     <h2>Create an account</h2>
+
     <div id="regAlert" class="alert"></div>
 
+    <!-- Email full width -->
     <div class="field">
-      <label>Email<span class="required">*</span></label>
-      <input type="email" id="regEmail" placeholder=""/>
+      <label>Email<span class="req">*</span></label>
+      <input type="email" id="regEmail"/>
     </div>
 
-    <div class="field">
-      <label>Display Name</label>
-      <input type="text" id="regDisplayName" placeholder=""/>
+    <!-- Display Name + Username side by side -->
+    <div class="reg-row">
+      <div class="field">
+        <label>Display Name</label>
+        <input type="text" id="regDisplayName"/>
+      </div>
+      <div class="field">
+        <label>Username<span class="req">*</span></label>
+        <input type="text" id="regUsername"/>
+      </div>
     </div>
 
+    <!-- Password full width -->
     <div class="field">
-      <label>Username<span class="required">*</span></label>
-      <input type="text" id="regUsername" placeholder=""/>
+      <label>Password<span class="req">*</span></label>
+      <input type="password" id="regPassword"/>
     </div>
 
+    <!-- Date of Birth -->
     <div class="field">
-      <label>Password<span class="required">*</span></label>
-      <input type="password" id="regPassword" placeholder=""/>
-    </div>
-
-    <div class="field">
-      <label>Date of Birth<span class="required">*</span></label>
-      <div class="reg-dob-row">
-        <div class="select-wrapper">
+      <label>Date of Birth<span class="req">*</span></label>
+      <div class="dob-row">
+        <div class="sel-wrap">
           <select id="regMonth">
             <option value="" disabled selected>Month</option>
-            <option value="1">January</option><option value="2">February</option>
-            <option value="3">March</option><option value="4">April</option>
-            <option value="5">May</option><option value="6">June</option>
-            <option value="7">July</option><option value="8">August</option>
-            <option value="9">September</option><option value="10">October</option>
+            <option value="01">January</option><option value="02">February</option>
+            <option value="03">March</option><option value="04">April</option>
+            <option value="05">May</option><option value="06">June</option>
+            <option value="07">July</option><option value="08">August</option>
+            <option value="09">September</option><option value="10">October</option>
             <option value="11">November</option><option value="12">December</option>
           </select>
         </div>
-        <div class="select-wrapper">
-          <select id="regDay">
-            <option value="" disabled selected>Day</option>
-          </select>
+        <div class="sel-wrap">
+          <select id="regDay"><option value="" disabled selected>Day</option></select>
         </div>
-        <div class="select-wrapper">
-          <select id="regYear">
-            <option value="" disabled selected>Year</option>
-          </select>
+        <div class="sel-wrap">
+          <select id="regYear"><option value="" disabled selected>Year</option></select>
         </div>
       </div>
     </div>
 
-    <div class="reg-checkbox-row">
-      <input type="checkbox" id="regEmailOptIn"/>
-      <label for="regEmailOptIn">(Optional) It's okay to send me emails with Discord updates, tips, and special offers. You can opt out at any time.</label>
+    <!-- Optional email checkbox -->
+    <div class="check-row">
+      <input type="checkbox" id="regOptIn"/>
+      <span>(Optional) It's okay to send me emails with Discord updates, tips, and special offers. You can opt out at any time.</span>
     </div>
 
-    <p class="reg-tos">By clicking "Create Account," you agree to Discord's <a href="#">Terms of Service</a> and have read the <a href="#">Privacy Policy</a></p>
+    <!-- ToS -->
+    <p class="tos-line">By clicking "Create Account," you agree to Discord's <a href="#">Terms of Service</a> and have read the <a href="#">Privacy Policy</a></p>
 
-    <button class="btn-login" id="regSubmitBtn" style="margin-top:16px;">
-      <div class="spinner" id="regSpinner"></div>
-      <span id="regBtnText">Create Account</span>
+    <!-- Create Account button -->
+    <button class="btn" id="regSubmitBtn">
+      <div class="spin" id="regSpin"></div>
+      <span id="regTxt">Create Account</span>
     </button>
 
-    <p class="reg-login-link"><a id="regBackToLogin">Already have an account?</a></p>
+    <p class="back-login"><a id="regBackLogin">Already have an account?</a></p>
   </div>
 </div>
 
 <script>
   // Stars
-  const starsContainer = document.getElementById("stars");
-  for (let i = 0; i < 80; i++) {
-    const star = document.createElement("div");
-    star.className = "star";
-    const size = Math.random() * 2.5 + 1;
-    star.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*4}s;animation-duration:${2+Math.random()*3}s;`;
-    starsContainer.appendChild(star);
-  }
+  (function(){
+    const c = document.getElementById("stars");
+    for(let i=0;i<80;i++){
+      const s=document.createElement("div"); s.className="star";
+      const sz=Math.random()*2.5+1;
+      s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*4}s;animation-duration:${2+Math.random()*3}s;`;
+      c.appendChild(s);
+    }
+  })();
 
-  // Populate Day & Year selects
-  const daySelect = document.getElementById("regDay");
-  for (let d = 1; d <= 31; d++) { const o = document.createElement("option"); o.value = d; o.textContent = d; daySelect.appendChild(o); }
-  const yearSelect = document.getElementById("regYear");
-  const curYear = new Date().getFullYear();
-  for (let y = curYear; y >= 1900; y--) { const o = document.createElement("option"); o.value = y; o.textContent = y; yearSelect.appendChild(o); }
+  // DOB dropdowns
+  (function(){
+    const d=document.getElementById("regDay");
+    for(let i=1;i<=31;i++){const o=document.createElement("option");o.value=String(i).padStart(2,"0");o.textContent=i;d.appendChild(o);}
+    const y=document.getElementById("regYear");
+    for(let i=new Date().getFullYear();i>=1900;i--){const o=document.createElement("option");o.value=i;o.textContent=i;y.appendChild(o);}
+    ["regMonth","regDay","regYear"].forEach(id=>{
+      const el=document.getElementById(id);
+      el.addEventListener("change",()=>el.classList.add("picked"));
+    });
+  })();
 
-  // Update select color when chosen
-  ["regMonth","regDay","regYear"].forEach(id => {
-    const el = document.getElementById(id);
-    el.addEventListener("change", () => el.classList.add("selected"));
-  });
+  // Helpers
+  const $=id=>document.getElementById(id);
+  function showAlert(el,msg,type="error"){el.textContent=msg;el.className="alert "+type;}
+  function hideAlert(el){el.className="alert";}
+  function setLoading(btn,spin,txt,on){btn.disabled=on;spin.style.display=on?"block":"none";txt.style.opacity=on?"0.5":"1";}
 
-  // API helper
-  const API = {
-    async post(path, body) {
-      const res = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify(body) });
-      return res.json();
-    },
-    async get(path) {
-      const res = await fetch(path, { credentials: "include" });
-      return res.json();
-    },
+  const API={
+    async post(p,b){const r=await fetch(p,{method:"POST",headers:{"Content-Type":"application/json"},credentials:"include",body:JSON.stringify(b)});return r.json();},
+    async get(p){const r=await fetch(p,{credentials:"include"});return r.json();}
   };
 
-  function showAlert(el, message, type = "error") { el.textContent = message; el.className = `alert ${type} show`; }
-  function hideAlert(el) { el.className = "alert"; }
-  function setLoading(btn, spinner, textEl, loading) { btn.disabled = loading; spinner.style.display = loading ? "block" : "none"; textEl.style.opacity = loading ? "0.5" : "1"; }
-
-  function showProfile(user) {
-    document.getElementById("loginForm").style.display = "none";
-    document.getElementById("profileCard").classList.add("show");
-    document.getElementById("avatarRing").textContent = user.username[0].toUpperCase();
-    document.getElementById("profileName").textContent = user.username;
-    document.getElementById("profileTag").textContent = `#${user.discriminator}`;
+  function showProfile(u){
+    $("loginForm").style.display="none";
+    $("profileCard").classList.add("show");
+    $("avatarRing").textContent=u.username[0].toUpperCase();
+    $("profileName").textContent=u.username;
+    $("profileTag").textContent="#"+u.discriminator;
   }
-  function showLoginForm() {
-    document.getElementById("loginForm").style.display = "";
-    document.getElementById("profileCard").classList.remove("show");
-  }
+  function showLoginForm(){$("loginForm").style.display="";$("profileCard").classList.remove("show");}
 
-  window.addEventListener("DOMContentLoaded", async () => {
-    try { const res = await API.get("/api/auth/me"); if (res.success) showProfile(res.user); } catch {}
+  window.addEventListener("DOMContentLoaded",async()=>{
+    try{const r=await API.get("/api/auth/me");if(r.success)showProfile(r.user);}catch{}
   });
 
   // Login
-  const loginBtn = document.getElementById("loginBtn");
-  const spinner = document.getElementById("spinner");
-  const btnText = document.getElementById("btnText");
-  const alertBox = document.getElementById("alertBox");
-  const loginInput = document.getElementById("loginInput");
-  const passInput = document.getElementById("passwordInput");
-
-  async function doLogin() {
-    hideAlert(alertBox);
-    const login = loginInput.value.trim();
-    const password = passInput.value;
-    if (!login || !password) { showAlert(alertBox, "Please fill in all fields."); return; }
-    setLoading(loginBtn, spinner, btnText, true);
-    try {
-      const res = await API.post("/api/auth/login", { login, password });
-      if (res.success) { showProfile(res.user); passInput.value = ""; }
-      else { showAlert(alertBox, res.error || "Login failed. Please try again."); loginInput.classList.add("error-input"); passInput.classList.add("error-input"); }
-    } catch { showAlert(alertBox, "Network error. Please check your connection."); }
-    finally { setLoading(loginBtn, spinner, btnText, false); }
+  async function doLogin(){
+    hideAlert($("alertBox"));
+    const login=$("loginInput").value.trim(), pass=$("passwordInput").value;
+    if(!login||!pass){showAlert($("alertBox"),"Please fill in all fields.");return;}
+    setLoading($("loginBtn"),$("loginSpin"),$("loginTxt"),true);
+    try{
+      const r=await API.post("/api/auth/login",{login,password:pass});
+      if(r.success){showProfile(r.user);$("passwordInput").value="";}
+      else{showAlert($("alertBox"),r.error||"Login failed.");[$("loginInput"),$("passwordInput")].forEach(e=>e.classList.add("err"));}
+    }catch{showAlert($("alertBox"),"Network error.");}
+    finally{setLoading($("loginBtn"),$("loginSpin"),$("loginTxt"),false);}
   }
-
-  loginBtn.addEventListener("click", doLogin);
-  [loginInput, passInput].forEach(el => el.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); el.classList.remove("error-input"); }));
-  document.getElementById("logoutBtn").addEventListener("click", async () => { try { await API.post("/api/auth/logout", {}); } catch {} showLoginForm(); });
+  $("loginBtn").addEventListener("click",doLogin);
+  [$("loginInput"),$("passwordInput")].forEach(el=>el.addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();el.classList.remove("err");}));
+  $("logoutBtn").addEventListener("click",async()=>{try{await API.post("/api/auth/logout",{});}catch{}showLoginForm();});
 
   // Forgot
-  const forgotModal = document.getElementById("forgotModal");
-  const forgotAlert = document.getElementById("forgotAlert");
-  const forgotEmail = document.getElementById("forgotEmail");
-  const forgotBtn = document.getElementById("forgotSubmitBtn");
-  const forgotSpinner = document.getElementById("forgotSpinner");
-  const forgotBtnTxt = document.getElementById("forgotBtnText");
-
-  document.getElementById("forgotLink").addEventListener("click", () => { forgotModal.classList.add("open"); forgotEmail.value = ""; hideAlert(forgotAlert); });
-  document.getElementById("closeForgotModal").addEventListener("click", () => forgotModal.classList.remove("open"));
-  forgotModal.addEventListener("click", e => { if (e.target === forgotModal) forgotModal.classList.remove("open"); });
-
-  forgotBtn.addEventListener("click", async () => {
-    hideAlert(forgotAlert);
-    const email = forgotEmail.value.trim();
-    if (!email) { showAlert(forgotAlert, "Please enter your email address."); return; }
-    setLoading(forgotBtn, forgotSpinner, forgotBtnTxt, true);
-    try {
-      const res = await API.post("/api/auth/forgot-password", { email });
-      if (res.success) showAlert(forgotAlert, res.message, "success");
-      else showAlert(forgotAlert, res.error || "Something went wrong.");
-    } catch { showAlert(forgotAlert, "Network error."); }
-    finally { setLoading(forgotBtn, forgotSpinner, forgotBtnTxt, false); }
+  $("forgotLink").addEventListener("click",()=>{$("forgotModal").classList.add("open");$("forgotEmail").value="";hideAlert($("forgotAlert"));});
+  $("closeForgot").addEventListener("click",()=>$("forgotModal").classList.remove("open"));
+  $("forgotModal").addEventListener("click",e=>{if(e.target===$("forgotModal"))$("forgotModal").classList.remove("open");});
+  $("forgotSubmitBtn").addEventListener("click",async()=>{
+    hideAlert($("forgotAlert"));
+    const email=$("forgotEmail").value.trim();
+    if(!email){showAlert($("forgotAlert"),"Please enter your email.");return;}
+    setLoading($("forgotSubmitBtn"),$("forgotSpin"),$("forgotTxt"),true);
+    try{
+      const r=await API.post("/api/auth/forgot-password",{email});
+      if(r.success)showAlert($("forgotAlert"),r.message,"success");
+      else showAlert($("forgotAlert"),r.error||"Something went wrong.");
+    }catch{showAlert($("forgotAlert"),"Network error.");}
+    finally{setLoading($("forgotSubmitBtn"),$("forgotSpin"),$("forgotTxt"),false);}
   });
 
   // Register
-  const registerModal = document.getElementById("registerModal");
-  const regAlert = document.getElementById("regAlert");
-  const regBtn = document.getElementById("regSubmitBtn");
-  const regSpinner = document.getElementById("regSpinner");
-  const regBtnTxt = document.getElementById("regBtnText");
-
-  document.getElementById("registerLink").addEventListener("click", () => { registerModal.classList.add("open"); hideAlert(regAlert); });
-  document.getElementById("regBackToLogin").addEventListener("click", () => registerModal.classList.remove("open"));
-  registerModal.addEventListener("click", e => { if (e.target === registerModal) registerModal.classList.remove("open"); });
-
-  regBtn.addEventListener("click", async () => {
-    hideAlert(regAlert);
-    const email    = document.getElementById("regEmail").value.trim();
-    const username = document.getElementById("regUsername").value.trim();
-    const password = document.getElementById("regPassword").value;
-    const month    = document.getElementById("regMonth").value;
-    const day      = document.getElementById("regDay").value;
-    const year     = document.getElementById("regYear").value;
-    if (!email || !username || !password) { showAlert(regAlert, "Please fill in all required fields."); return; }
-    if (!month || !day || !year) { showAlert(regAlert, "Please enter your date of birth."); return; }
-    setLoading(regBtn, regSpinner, regBtnTxt, true);
-    try {
-      const res = await API.post("/api/auth/register", { email, username, password, dob: `${year}-${month}-${day}` });
-      if (res.success) { registerModal.classList.remove("open"); showProfile(res.user); }
-      else showAlert(regAlert, res.error || "Registration failed.");
-    } catch { showAlert(regAlert, "Network error."); }
-    finally { setLoading(regBtn, regSpinner, regBtnTxt, false); }
+  $("registerLink").addEventListener("click",()=>{$("registerModal").classList.add("open");hideAlert($("regAlert"));});
+  $("regBackLogin").addEventListener("click",()=>$("registerModal").classList.remove("open"));
+  $("registerModal").addEventListener("click",e=>{if(e.target===$("registerModal"))$("registerModal").classList.remove("open");});
+  $("regSubmitBtn").addEventListener("click",async()=>{
+    hideAlert($("regAlert"));
+    const email=$("regEmail").value.trim();
+    const username=$("regUsername").value.trim();
+    const password=$("regPassword").value;
+    const month=$("regMonth").value, day=$("regDay").value, year=$("regYear").value;
+    if(!email||!username||!password){showAlert($("regAlert"),"Please fill in all required fields.");return;}
+    if(!month||!day||!year){showAlert($("regAlert"),"Please enter your date of birth.");return;}
+    setLoading($("regSubmitBtn"),$("regSpin"),$("regTxt"),true);
+    try{
+      const r=await API.post("/api/auth/register",{email,username,password,dob:`${year}-${month}-${day}`});
+      if(r.success){$("registerModal").classList.remove("open");showProfile(r.user);}
+      else showAlert($("regAlert"),r.error||"Registration failed.");
+    }catch{showAlert($("regAlert"),"Network error.");}
+    finally{setLoading($("regSubmitBtn"),$("regSpin"),$("regTxt"),false);}
   });
 </script>
 </body>
